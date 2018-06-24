@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <title>Goim-Demo</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script type="text/javascript" src="http://cdn.bootcss.com/vue/2.5.13/vue.min.js"></script>
+    <script type="text/javascript" src="wsconnect.js"></script>
+
+</head>
+
+<body>
+    <h1>Client Demo</h1>
+    <b>Note:This page is not for IE/Edge.</b>
+    <h3>Settings:</h3>
+    Server Settings:<br />
+    <form id="server_setting">
+        Server IP:<input type="text" id="ip" value="127.0.0.1"> Port:
+        <input type="text" id="port" value="8090">
+        <button type="button" onclick="start()">Connect</button>
+    </form><br />
+    <div id="s_msg">
+        <h3>Messages</h3>
+        <ol>
+            <li v-for="ms in show">
+                <b>{{ ms.time }}:</b>{{ ms.msg_body }}
+            </li>
+        </ol>
+    </div>
+    <script>
+        var msshow = new Vue({
+            el: '#s_msg',
+            data: {
+                show: window.message
+            }
+        })
+    </script>
+</body>
+
+</html>

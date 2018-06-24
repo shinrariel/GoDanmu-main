@@ -74,13 +74,14 @@ if(empty($_SESSION["UID"]))
 		<tbody>
 			<tr>
 				<td>时间</td>
+				<td>来源</td>
 				<td>内容</td>
 				<td>操作</td>
 			</tr>
 			<tr v-for="ms in show" :id="ms.msgid">
 				<td>{{ ms.time }}</td>
 				<td>{{ ms.msg_body }}</td>
-				<td><button type="button" v-on:click="msg_send_vue(ms.time,ms.msg_body);changeline(ms.msgid,'line-through')">通过</button></td>
+				<td><button type="button" v-on:click="msg_send_vue(ms.time,ms.name,ms.msg_body);changeline(ms.msgid,'line-through')">通过</button></td>
 			</tr>
 		</tbody>
 	</table>
@@ -93,7 +94,7 @@ if(empty($_SESSION["UID"]))
                 show: window.message
             },
 			methods:{
-				msg_send_vue:function(time,msg_body){
+				msg_send_vue:function(time,name,msg_body){
 					var msgip = document.getElementById("ip").value;
 					var msport = document.getElementById("sendport").value;
 					$.post("http://" + msgip + ":" + msport + "/1/push/all", JSON.stringify({
