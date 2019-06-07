@@ -1,4 +1,4 @@
-*.css linguist-language=php
-*.js linguist-language=php
-*.php linguist-language=php
-*.html linguist-language=php
+*.css linguist-vendored
+*.scss linguist-vendored
+*.js linguist-vendored
+*.html linguist-vendored
