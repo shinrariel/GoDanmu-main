@@ -25,6 +25,7 @@ Client.prototype.createConnect = function(max, delay, server, port) {
 
     function connect(server, port) {
         var ws = new WebSocket('ws://' + server + ':' + port + '/sub');
+        
         var auth = false;
 
         ws.onopen = function() {
