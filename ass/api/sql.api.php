@@ -13,7 +13,7 @@ function sqlinit(){
     //这里是一个无条件初始化，只会返回根据配置文件确定的数据库对象
     //如需按需初始化一个sqlobj请直接在程序中new一个
     require_once "sql.conf.php";
-    $host   = $conf_host   ? $conf_host   : "localhost";
+    $host   = $conf_host   ? $conf_host   : "localhost:3306";
     $user   = $conf_user   ? $conf_user   : "root";
     $passwd = $conf_passwd ? $conf_passwd : "";
     $db     = $conf_db     ? $conf_db     : "localhost";
@@ -21,7 +21,7 @@ function sqlinit(){
     $coding = "UTF8";
     $tmp = new sqlobj( $host, $user, $passwd, $db, $conn, $coding);
     return $tmp;
-    }
+}
 class sqlobj {
     private $db_host; //字符串型，数据库主机
     private $db_user; //字符串型，数据库用户名
@@ -419,6 +419,16 @@ class sqlobj {
                     }
         return ($ip);
     }
+    function check_login($user, $upasswd,$admin,$debug_ignore_check = 0){ //数据库对象内嵌身份认证函数
+        if(!$debug_ignore_check)
+        {
+            $mpasswd = $this->select($table, $columnName = "*", $condition = '', $debug = '');
+
+            return password_verify($passwd.'salt:$username$'.$username,$passwd);
+        }
+        
+    }
+    
     function inject_check($sql_str) { //防止注入
         $check = eregi('select|insert|update|delete|\'|\/\*|\*|\.\.\/|\.\/|union|into|load_file|outfile', $sql_str);
         if ($check) {
@@ -428,8 +438,6 @@ class sqlobj {
             return $sql_str;
         }
     }
-    }
- 
 }
 
->?
+?>
