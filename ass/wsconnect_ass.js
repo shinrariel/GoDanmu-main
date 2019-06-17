@@ -1,9 +1,10 @@
+
 function start() {
     var ip_in = document.getElementById("ip");
     var port_in = document.getElementById("port");
     window.ip = ip_in.value;
     window.port = port_in.value;
-	window.msgid = 0;
+    window.msgid = 0;
     console.log("Server is:" + window.ip + ":" + window.port);
     link(window.ip, window.port);
     return true;
@@ -13,7 +14,7 @@ window.message = [];
 function Client() {
 
 }
-Client.prototype.createConnect = function(max, delay, server, port) {
+Client.prototype.createConnect = function (max, delay, server, port) {
     var self = this;
     if (max === 0) {
         return;
@@ -25,14 +26,14 @@ Client.prototype.createConnect = function(max, delay, server, port) {
 
     function connect(server, port) {
         var ws = new WebSocket('ws://' + server + ':' + port + '/sub');
-        
+
         var auth = false;
 
-        ws.onopen = function() {
+        ws.onopen = function () {
             getAuth();
         }
 
-        ws.onmessage = function(evt) {
+        ws.onmessage = function (evt) {
             var receives = JSON.parse(evt.data)
             for (var i = 0; i < receives.length; i++) {
                 var data = receives[i];
@@ -47,15 +48,15 @@ Client.prototype.createConnect = function(max, delay, server, port) {
                 }
                 if (auth && data.op == 5) {
                     var msg = JSON.stringify(data.body);
-					data.body.msgid=window.msgid;
+                    data.body.msgid = window.msgid;
                     console.log("Message:" + msg);
                     window.message.push(data.body);
-					window.msgid += 1;
+                    window.msgid += 1;
                 }
             }
         }
 
-        ws.onclose = function() {
+        ws.onclose = function () {
             if (heartbeatInterval) clearInterval(heartbeatInterval);
             setTimeout(reConnect, delay);
         }

@@ -1,17 +1,16 @@
 <?php
-	
-	require_once "conf/debug.conf.php";
+	$conf_mysqli_need = 1;
+	require_once "conf/component.conf.php";
 	#调试常量结束
 	session_start();
 	require_once "api/sql.api.php";
-	$_SESSION['wp'] = $_SESSION['uid'] ? 0 : $_SESSION['wp'];
 	/*
-	function simple_logincheck($password){
-	//已废弃：基于文件的验证密码，采用php内置安全验证
-	$correct_pass = 'sytv20190623qwq';
-	$hash = password_hash($correct_pass, PASSWORD_DEFAULT);
-	}
-	$refuse = !simple_logincheck($_POST["password"]);
+	 * function simple_logincheck($password){
+	 * //已废弃：基于文件的验证密码，采用php内置安全验证
+	 * $correct_pass = 'sytv20190623qwq';
+	 * $hash = password_hash($correct_pass, PASSWORD_DEFAULT);
+	 * }
+	 * $refuse = !simple_logincheck($_POST["password"]);
 	*/
 	if($_SESSION['uid']){
 		//已存在登陆态跳转
@@ -19,9 +18,9 @@
 		exit();
 	}
 
-	$mysql = new 
+	$mysql = sqlinit();
 
-	if(!$mysql->check_login($safe_user,$safe_pd,0) && !DEBUG_ALLOW_ANONYMOUS_LOGIN  ){  
+	if( !$mysql->check_login($safe_user,$safe_pd,0) && !DEBUG_ALLOW_ANONYMOUS_LOGIN){  
 		if(!isset($_POST['submit'])){
 			//无登陆态且空密码的处理
 			$_SESSION['wp'] = 2;
@@ -36,7 +35,7 @@
 	} else 
 	{
 		//登录成功
-		require_once 'class/func.class.php';
+		include_once 'class/func.class.php';
 		$_SESSION['uid'] = makeuid($_SESSION['uid']);
 		$_SESSION['time_b'] = time();
 		$ass_string = $uid_file . md5( date( 'Y-m-d H:i:s' , $_SESSION['time_b'] ) );

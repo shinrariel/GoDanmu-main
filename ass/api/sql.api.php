@@ -1,27 +1,13 @@
 <?php
-   /**  
+//	* 不要修改此页面，配置文件在
+//* "component.conf.php"
+   /**  sql.api.php
 	* 数据库类api 
-	* 不要修改此页面，配置文件在
-    * "sql.conf.php"
     * @api
 	* @version 0.0.1
 	* @author Beichi_qwq <g841734459@126.com>
     * 
 	*/  
-function sqlinit(){
-    //数据库初始化函数，返回一个sqlobj对象
-    //这里是一个无条件初始化，只会返回根据配置文件确定的数据库对象
-    //如需按需初始化一个sqlobj请直接在程序中new一个
-    require_once "sql.conf.php";
-    $host   = $conf_host   ? $conf_host   : "localhost:3306";
-    $user   = $conf_user   ? $conf_user   : "root";
-    $passwd = $conf_passwd ? $conf_passwd : "";
-    $db     = $conf_db     ? $conf_db     : "localhost";
-    $conn   = '';
-    $coding = "UTF8";
-    $tmp = new sqlobj( $host, $user, $passwd, $db, $conn, $coding);
-    return $tmp;
-}
 class sqlobj {
     private $db_host; //字符串型，数据库主机
     private $db_user; //字符串型，数据库用户名
@@ -51,18 +37,18 @@ class sqlobj {
     public function connect() {
         if ($this->conn == "pconn") {
             //永久链接
-            $this->conn = mysql_pconnect($this->db_host, $this->db_user, $this->db_pwd);
+            $this->conn = mysqli_pconnect($this->db_host, $this->db_user, $this->db_pwd);
         } else {
             //即使链接
-            $this->conn = mysql_connect($this->db_host, $this->db_user, $this->db_pwd);
+            $this->conn = mysqli_connect($this->db_host, $this->db_user, $this->db_pwd);
         }
  
-        if (!mysql_select_db($this->db_database, $this->conn)) {
+        if (!mysqli_select_db($this->conn, $this->db_database)) {
             if ($this->show_error) {
                 $this->show_error("数据库不可用：", $this->db_database);
             }
         }
-        mysql_query("SET NAMES $this->coding");
+        mysqli_query($this->conn, "SET NAMES $this->coding");
     }
  
     /*数据库执行语句，可执行查询添加修改删除等任何sql语句*/
@@ -72,7 +58,7 @@ class sqlobj {
         }
         $this->sql = $sql;
  
-        $result = mysql_query($this->sql, $this->conn);
+        $result = mysqli_query($this->sql, $this->conn);
  
         if (!$result) {
             //调试中使用，sql语句出错时会自动打印出来
@@ -109,11 +95,11 @@ class sqlobj {
  
     //禁用的高权限函数：以数组形式返回主机中所有数据库名
     public function databases() {
-        $rsPtr = mysql_list_dbs($this->conn);
+        $rsPtr = mysqli_list_dbs($this->conn);
         $i = 0;
-        $cnt = mysql_num_rows($rsPtr);
+        $cnt = mysqli_num_rows($rsPtr);
         while ($i < $cnt) {
-            $rs[] = mysql_db_name($rsPtr, $i);
+            $rs[] = mysqli_db_name($rsPtr, $i);
             $i++;
         }
         return $rs;
@@ -134,39 +120,34 @@ class sqlobj {
     }
     */
     /*
-    mysql_fetch_row()    array  $row[0],$row[1],$row[2]
-    mysql_fetch_array()  array  $row[0] 或 $row[id]
-    mysql_fetch_assoc()  array  用$row->content 字段大小写敏感
-    mysql_fetch_object() object 用$row[id],$row[content] 字段大小写敏感
+    mysqli_fetch_row()    array  $row[0],$row[1],$row[2]
+    mysqli_fetch_array()  array  $row[0] 或 $row[id]
+    mysqli_fetch_assoc()  array  用$row->content 字段大小写敏感
+    mysqli_fetch_object() object 用$row[id],$row[content] 字段大小写敏感
     */
- 
-    /*取得结果数据*/
-    public function mysql_result_li() {
-        return mysql_result($str);
-    }
  
     /*取得记录集,获取数组-索引和关联,使用$row['content'] */
     public function fetch_array($resultt="") {
         if($resultt<>""){
-            return mysql_fetch_array($resultt);
+            return mysqli_fetch_array($resultt);
         }else{
-        return mysql_fetch_array($this->result);
+        return mysqli_fetch_array($this->result);
         }
     }
  
     //获取关联数组,使用$row['字段名']
     public function fetch_assoc() {
-        return mysql_fetch_assoc($this->result);
+        return mysqli_fetch_assoc($this->result);
     }
  
     //获取数字索引数组,使用$row[0],$row[1],$row[2]
     public function fetch_row() {
-        return mysql_fetch_row($this->result);
+        return mysqli_fetch_row($this->result);
     }
  
     //获取对象数组,使用$row->content
     public function fetch_Object() {
-        return mysql_fetch_object($this->result);
+        return mysqli_fetch_object($this->result);
     }
  
     //简化查询select
@@ -211,7 +192,7 @@ class sqlobj {
  
     /*取得上一步 INSERT 操作产生的 ID*/
     public function insert_id() {
-        return mysql_insert_id();
+        return mysqli_insert_id($this->conn);
     }
  
     //指向确定的一条数据记录
@@ -219,7 +200,7 @@ class sqlobj {
         if ($id > 0) {
             $id = $id -1;
         }
-        if (!@ mysql_data_seek($this->result, $id)) {
+        if (!@ mysqli_data_seek($this->result, $id)) {
             $this->show_error("SQL语句有误：", "指定的数据为空");
         }
         return $this->result;
@@ -232,13 +213,13 @@ class sqlobj {
                 $this->show_error("SQL语句错误", "暂时为空，没有任何内容！");
             }
         } else {
-            return mysql_num_rows($this->result);
+            return mysqli_num_rows($this->result);
         }
     }
  
     // 根据insert,update,delete执行结果取得影响行数
     public function db_affected_rows() {
-        return mysql_affected_rows();
+        return mysqli_affected_rows($this->conn);
     }
  
     //输出显示sql语句
@@ -253,7 +234,7 @@ class sqlobj {
             echo "<div style='height:20px; background:#000000; border:1px #000000 solid'>";
             echo "<font color='white'>错误号：12142</font>";
             echo "</div><br />";
-            echo "错误原因：" . mysql_error() . "<br /><br />";
+            echo "错误原因：" . mysqli_error($this->conn) . "<br /><br />";
             echo "<div style='height:20px; background:#FF0000; border:1px #FF0000 solid'>";
             echo "<font color='white'>" . $message . "</font>";
             echo "</div>";
@@ -347,49 +328,49 @@ class sqlobj {
  
     //释放结果集
     public function free() {
-        @ mysql_free_result($this->result);
+        @ mysqli_free_result($this->result);
     }
  
     //数据库选择
     public function select_db($db_database) {
-        return mysql_select_db($db_database);
+        return mysqli_select_db($this->conn,$db_database);
     }
  
     //查询字段数量
     public function num_fields($table_name) {
-        //return mysql_num_fields($this->result);
+        //return mysqli_num_fields($this->result);
         $this->query("select * from $table_name");
         echo "<br />";
-        echo "字段数：" . $total = mysql_num_fields($this->result);
+        echo "字段数：" . $total = mysqli_num_fields($this->result);
         echo "<pre>";
         for ($i = 0; $i < $total; $i++) {
-            print_r(mysql_fetch_field($this->result, $i));
+            print_r(mysqli_fetch_field($this->result, $i));
         }
         echo "</pre>";
         echo "<br />";
     }
  
-    //取得 MySQL 服务器信息
-    public function mysql_server($num = '') {
+    //取得 mysqli 服务器信息
+    public function mysqli_server($num = '') {
         switch ($num) {
             case 1 :
-                return mysql_get_server_info(); //MySQL 服务器信息
+                return mysqli_get_server_info($this->conn); //mysqli 服务器信息
                 break;
  
             case 2 :
-                return mysql_get_host_info(); //取得 MySQL 主机信息
+                return mysqli_get_host_info($this->conn); //取得 mysqli 主机信息
                 break;
  
             case 3 :
-                return mysql_get_client_info(); //取得 MySQL 客户端信息
+                return mysqli_get_client_info(); //取得 mysqli 客户端信息
                 break;
  
             case 4 :
-                return mysql_get_proto_info(); //取得 MySQL 协议信息
+                return mysqli_get_proto_info($this->conn); //取得 mysqli 协议信息
                 break;
  
             default :
-                return mysql_get_client_info(); //默认取得mysql版本信息
+                return mysqli_get_client_info(); //默认取得mysqli版本信息
         }
     }
  
@@ -398,7 +379,7 @@ class sqlobj {
         if (!empty ($this->result)) {
             $this->free();
         }
-        mysql_close($this->conn);
+        mysqli_close($this->conn);
     } //function __destruct();
  
     /*获得客户端真实的IP地址*/
@@ -422,9 +403,10 @@ class sqlobj {
     function check_login($user, $upasswd,$admin,$debug_ignore_check = 0){ //数据库对象内嵌身份认证函数
         if(!$debug_ignore_check)
         {
+            $table = 'god_user';
             $mpasswd = $this->select($table, $columnName = "*", $condition = '', $debug = '');
 
-            return password_verify($passwd.'salt:$username$'.$username,$passwd);
+            return password_verify($upasswd.'salt:$username$'.$user,$mpasswd);
         }
         
     }
@@ -440,4 +422,18 @@ class sqlobj {
     }
 }
 
-?>
+function sqlinit(){
+    //数据库初始化函数，返回一个sqlobj对象
+    //这里是一个无条件初始化，只会返回根据配置文件确定的数据库对象
+    //如需按需初始化一个sqlobj请直接在程序中new一个
+    require_once "../conf/component.conf.php";
+    $host   = $conf_mysqli_host   ? $conf_mysqli_host   : "localhost:3306";
+    $user   = $conf_mysqli_user   ? $conf_mysqli_user   : "root";
+    $passwd = $conf_mysqli_passwd ? $conf_mysqli_passwd : "";
+    $db     = $conf_mysqli_db     ? $conf_mysqli_db     : "godanmu";
+    $conn   = '';
+    $coding = "UTF8";
+    $tmp = new sqlobj( $host, $user, $passwd, $db, $conn, $coding);
+    return $tmp;
+}
+$sql = sqlinit();
