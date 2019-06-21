@@ -10,7 +10,7 @@ function start() {
     return true;
 }
 window.message = [];
-
+var heartbeatcount =0;
 function Client() {
 
 }
@@ -40,6 +40,7 @@ Client.prototype.createConnect = function (max, delay, server, port) {
                 console.log(data);
                 if (data.op == 8) {
                     auth = true;
+                    
                     heartbeat();
                     heartbeatInterval = setInterval(heartbeat, 10 * 1000);
                 }
@@ -62,6 +63,7 @@ Client.prototype.createConnect = function (max, delay, server, port) {
         }
 
         function heartbeat() {
+            console.log("heartbeat");
             ws.send(JSON.stringify({
                 'ver': 1,
                 'op': 2,
@@ -71,6 +73,7 @@ Client.prototype.createConnect = function (max, delay, server, port) {
         }
 
         function getAuth() {
+            console.log("getauth");
             ws.send(JSON.stringify({
                 'ver': 1,
                 'op': 7,
@@ -91,7 +94,8 @@ Client.prototype.createConnect = function (max, delay, server, port) {
 
 function link(ip, port) {
     var instance = new Client();
-    var MAX_CONNECT_TIME = 10;
+    var MAX_CONNECT_TIME = 100;
     var DELAY = 15000;
     instance.createConnect(MAX_CONNECT_TIME, DELAY, window.ip, window.port);
+    console.log("debug:finish create!");
 }

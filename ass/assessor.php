@@ -1,31 +1,35 @@
-<?php
+<!--
+
 session_start();
 require 'class/checklogin.class.php';
 if(!allowLogin())
 {
     header("Location:index.php");
     }
-?>
+
+-->
 <html>
+
 <head>
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<style>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="layui/css/layui.css">
+    <style>
         body,
         html {
             height: 100%;
             background-color: #f8f8f8
         }
-        
+
         body {
             font-family: -apple-system-font, Helvetica Neue, Helvetica, sans-serif
         }
-        
+
         .item {
             padding: 10px 0
         }
-        
+
         .item__title {
             margin-bottom: 5px;
             padding-left: 15px;
@@ -34,21 +38,21 @@ if(!allowLogin())
             font-weight: 400;
             font-size: 14px
         }
-        
+
         .item__ctn {
             padding: 0 15px
         }
-        
+
         .page_feedback {
             padding: 15px;
             overflow: auto;
             background-color: #FFF
         }
-        
+
         label>* {
             pointer-events: none
         }
-        
+
         .weui-picker__item {
             padding: 0;
             height: 34px;
@@ -59,55 +63,60 @@ if(!allowLogin())
     <script type="text/javascript" src="http://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script type="text/javascript" src="http://cdn.bootcss.com/vue/2.5.16/vue.js"></script>
     <script type="text/javascript" src="wsconnect_ass.js"></script>
-	<title>审核页面</title>
+    <title>审核页面</title>
 </head>
+
 <body>
-<h1>审核页面 </h1>
+    <h1>审核页面 </h1>
     <form id="server_setting">
-        <input type="text" id="ip" value="shinrariel.com" hidden>
-        <input type="text" id="port" value="8090" hidden>
-		<input type="text" id="sendport" value="8172" hidden>
-        <button type="button" onclick="start()">连接到服务器</button>
+        <input type="text" id="ip" value="219.147.208.231" hidden>
+        <input type="text" id="port" value="18090" hidden>
+        <input type="text" id="sendport" value="18172" hidden>
     </form>
-<table width="100%" border="1" cellpadding="0" cellspacing="0">
-	<table id="s_msg">
-		<tbody>
-			<tr>
-				<td>时间</td>
-				<td>来源</td>
-				<td>内容</td>
-				<td>操作</td>
-			</tr>
-			<tr v-for="ms in show" :id="ms.msgid">
-				<td>{{ ms.time }}</td>
-				<td>{{ ms.msg_body }}</td>
-				<td><button type="button" v-on:click="msg_send_vue(ms.time,ms.name,ms.msg_body);changeline(ms.msgid,'line-through')">通过</button></td>
-			</tr>
-		</tbody>
-	</table>
-	</tr>
-</div>
-<script>
+    <div id="mainbox">
+        <table width="100%" border="1" cellpadding="0" cellspacing="0">
+            <table id="s_msg" class="layui-table">
+                <tbody>
+                    <tr>
+                        <th style="width:9%;">时间</th>
+                        <th style="width:10%;">用户</th>
+                        <th style="min-width:150px;">内容</th>
+                        <th style="width:5%;">操作</th>
+                    </tr>
+                    <tr class="height=27px;" v-for="ms in show" :id="ms.msgid">
+                        <td>{{ ms.time }}</td>
+                        <td>{{ ms.name }}</td>
+                        <td>{{ ms.msg_body }}</td>
+                        <td><button type="button" class="layui-btn" v-on:click="msg_send_vue(ms.time,ms.name,ms.msg_body);changeline(ms.msgid,'line-through')">通过</button></td>
+                    </tr>
+                </tbody>
+            </table>
+    </div>
+    <script>
         var msshow = new Vue({
             el: '#s_msg',
             data: {
                 show: window.message
             },
-			methods:{
-				msg_send_vue:function(time,name,msg_body){
-					var msgip = document.getElementById("ip").value;
-					var msport = document.getElementById("sendport").value;
-					$.post("http://" + msgip + ":" + msport + "/1/push/all", JSON.stringify({
-						"msg_body": msg_body,
-						"time": time
-					}), "json");
-				},
-				changeline:function(id,x){
-					document.getElementById(id.toString()).style.textDecoration = x;
-				}
-			}
+            methods: {
+                msg_send_vue: function(time, name, msg_body) {
+                    var msgip = document.getElementById("ip").value;
+                    var msport = document.getElementById("sendport").value;
+                    $.post("http://" + msgip + ":" + msport + "/1/push/all", JSON.stringify({
+                        "msg_body": name + ": " + msg_body,
+                        "time": time
+                    }), "json");
+                },
+                changeline: function(id, x) {
+                    document.getElementById(id.toString()).style.textDecoration = x;
+                }
+            }
         })
     </script>
-</table>
+    <script type="text/javascript">
+        start();
+    </script>
+    </table>
 </body>
+
 </html>
