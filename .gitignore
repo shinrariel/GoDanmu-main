@@ -8,3 +8,6 @@ ErrorFiles/503.html
 ErrorFiles/504.html
 ErrorFiles/510.html
 .vscode/*
+weadmin/*
+server/*
+
