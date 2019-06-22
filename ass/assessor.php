@@ -1,13 +1,11 @@
-<!--
-
-session_start();
-require 'class/checklogin.class.php';
-if(!allowLogin())
-{
-    header("Location:index.php");
+<?php
+    session_start();
+    require 'class/checklogin.class.php';
+    if (!allowLogin()) {
+        header("Location:index.php");
     }
-
--->
+    $user = $_SESSION['uid'];
+?>
 <html>
 
 <head>
@@ -70,8 +68,8 @@ if(!allowLogin())
     <h1>审核页面 </h1>
     <form id="server_setting">
         <input type="text" id="ip" value="219.147.208.231" hidden>
-        <input type="text" id="port" value="18090" hidden>
-        <input type="text" id="sendport" value="18172" hidden>
+        <input type="text" id="port" value="8090" hidden>
+        <input type="text" id="sendport" value="17172" hidden>
     </form>
     <div id="mainbox">
         <table width="100%" border="1" cellpadding="0" cellspacing="0">
@@ -93,6 +91,23 @@ if(!allowLogin())
             </table>
     </div>
     <script>
+        function getCookie(cname) {
+            var name = cname + "=";
+            var decodedCookie = decodeURIComponent(document.cookie);
+            var ca = decodedCookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return "";
+        }
+    </script>
+    <script>
         var msshow = new Vue({
             el: '#s_msg',
             data: {
@@ -105,6 +120,16 @@ if(!allowLogin())
                     $.post("http://" + msgip + ":" + msport + "/1/push/all", JSON.stringify({
                         "msg_body": name + ": " + msg_body,
                         "time": time
+                    }), "json");
+                    var server = "localdanmudev";
+                    var logp = "60000";
+                    var ass = "<?php echo $user; ?>";
+                    $.post("http://" + server + ":" + logp + "/ass/api/log.api.php", JSON.stringify({
+                        "type": "1",
+                        "assessor": ass,
+                        "msg_body": name + ": " + msg_body,
+                        "time": time,
+                        "session": getCookie()
                     }), "json");
                 },
                 changeline: function(id, x) {

@@ -11,4 +11,7 @@ ErrorFiles/510.html
 weadmin/*
 server/*
 ass/layui/*
-
+ass/login.action.php_
+ass/assessor_with_name.php_
+ass/debug.createuser.php_
+ass/info.php_

@@ -62,7 +62,7 @@
         }
         //服务器IP与端口
         window.server_ip = "219.147.208.231";
-        window.server_port = "17172";
+        window.server_port = "7172";
 
         //主函数，点击按钮后调用
         function confirm() {
@@ -104,7 +104,7 @@
                 console.log("time=" + bj_time + ",input=" + user_input);
                 //尝试发送消息
                 var postxhr = $.post("http://" + window.server_ip + ":" + window.server_port + "/1/push/all", JSON.stringify({
-                   // "name": "danmakuuser",
+                    "name": "danmakuuser",
 					"time": bj_time,
                     "msg_body": user_input
                 }), function() {}, "json");
